@@ -30,18 +30,13 @@ app.factory('payDialog', ['$mdDialog', '$interval', '$timeout', '$http', '$local
         payType: [],
     };
 
-    console.log('publicInfo.config.alipay:' + publicInfo.config.alipay);
-    console.log('publicInfo.config.alipay == true' + (publicInfo.config.alipay == 'true'));
-
-    logger.info('publicInfo.config.alipay:' + publicInfo.config.alipay);
-    logger.info('publicInfo.config.alipay == true' + (publicInfo.config.alipay == 'true'));
     if (publicInfo.config.alipay == 'true') {
         publicInfo.payType.push({
             type: 'alipay',
             name: '支付宝'
         });
     }
-    logger.info('publicInfo.config.paypal:' + publicInfo.config.paypal);
+
     if (publicInfo.config.paypal == 'true') {
         publicInfo.payType.push({
             type: 'paypal',
