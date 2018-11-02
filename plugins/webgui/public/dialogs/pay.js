@@ -1,3 +1,6 @@
+const log4js = require('log4js');
+const logger = log4js.getLogger('webgui');
+
 const app = angular.module('app');
 const window = require('window');
 const cdn = window.cdn || '';
@@ -26,12 +29,16 @@ app.factory('payDialog', ['$mdDialog', '$interval', '$timeout', '$http', '$local
         }],
         payType: [],
     };
+
+    logger.info('publicInfo.config.alipay:' + publicInfo.config.alipay);
+    logger.info('publicInfo.config.alipay == true' + (publicInfo.config.alipay == 'true'));
     if (publicInfo.config.alipay == 'true') {
         publicInfo.payType.push({
             type: 'alipay',
             name: '支付宝'
         });
     }
+    logger.info('publicInfo.config.paypal:' + publicInfo.config.paypal);
     if (publicInfo.config.paypal == 'true') {
         publicInfo.payType.push({
             type: 'paypal',
