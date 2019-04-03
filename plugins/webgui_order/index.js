@@ -28,7 +28,8 @@ const getOrdersAndAccountNumber = async () => {
     knex.raw('count(account_plugin.id) as accountNumber'),
   ])
   .leftJoin('account_plugin', 'account_plugin.orderId', 'webgui_order.id')
-  .groupBy('webgui_order.id');
+  .groupBy('webgui_order.id')
+  .orderBy('webgui_order.name', 'ASC');
   return orders;
 };
 
@@ -48,7 +49,7 @@ const getOneOrderByAccountId = async accountId => {
 };
 
 const newOrder = async data => {
-  await knex('webgui_order').insert({
+  const [ id ] = await knex('webgui_order').insert({
     baseId: data.baseId,
     name: data.name,
     shortComment: data.shortComment,
@@ -65,8 +66,9 @@ const newOrder = async data => {
     portRange: data.portRange,
     multiServerFlow: data.multiServerFlow,
     changeOrderType: data.changeOrderType,
+    active: data.active,
   });
-  return;
+  return id;
 };
 
 const editOrder = async data => {
@@ -87,6 +89,7 @@ const editOrder = async data => {
     portRange: data.portRange,
     multiServerFlow: data.multiServerFlow,
     changeOrderType: data.changeOrderType,
+    active: data.active,
   }).where({
     id: data.id,
   });

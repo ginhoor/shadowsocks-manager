@@ -161,7 +161,7 @@ cron.minute(async () => {
   for(const order of orders) {
     await scanOrder(order);
   }
-}, 1);
+}, 'CheckAlipayOrder', 1);
 
 const checkOrder = async (orderId) => {
   const order = await knex('alipay').select().where({
@@ -324,6 +324,7 @@ const getUserFinishOrder = async userId => {
     'createTime',
   ]).where({
     user: userId,
+    status: 'FINISH',
   }).orderBy('createTime', 'DESC');
   orders = orders.map(order => {
     return {
@@ -336,10 +337,22 @@ const getUserFinishOrder = async userId => {
   return orders;
 };
 
-cron.minute(() => {
+const refund = async (orderId, amount) => {
+  const order = await knex('alipay').where({ orderId }).then(s => s[0]);
+  if(!order) { return Promise.reject('order not found'); }
+  let refundAmount = order.amount;
+  if(amount) { refundAmount = amount; }
+  const result = await alipay_f2f.refund(order.orderId, {
+    refundNo: moment().format('YYYYMMDDHHmmss') + Math.random().toString().substr(2, 6),
+    refundAmount,
+  });
+  return result;
+};
+
+cron.minute(async () => {
   if(!alipay_f2f) { return; }
-  knex('alipay').delete().where({ status: 'CREATE' }).whereBetween('createTime', [0, Date.now() - 1 * 24 * 3600 * 1000]).then();
-}, 50);
+  await knex('alipay').delete().where({ status: 'CREATE' }).whereBetween('createTime', [0, Date.now() - 1 * 24 * 3600 * 1000]);
+}, 'DeleteAlipayOrder', 53);
 
 exports.orderListAndPaging = orderListAndPaging;
 exports.orderList = orderList;
@@ -348,3 +361,4 @@ exports.checkOrder = checkOrder;
 exports.verifyCallback = verifyCallback;
 exports.getCsvOrder = getCsvOrder;
 exports.getUserFinishOrder = getUserFinishOrder;
+exports.refund = refund;
